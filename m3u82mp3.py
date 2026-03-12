@@ -15,7 +15,6 @@ Example:
 """
 
 import argparse
-import os
 import binascii
 import m3u8
 import sys
@@ -105,7 +104,7 @@ def get_host_uri(m3u8_obj):
     for i in range(media_sequence):
         try:
             key_uri = m3u8_obj.keys[i].uri
-            host_uri = "/".join(key_uri.split("/")[:-1])
+            host_uri = key_uri.rsplit("/", 1)[0]
 
             return host_uri
         except AttributeError:
@@ -154,7 +153,7 @@ def get_ts_from_m3u8(input, host_uri=None):
             cipher = AES.new(key, AES.MODE_CBC, iv=iv)
             decrypt_func = cipher.decrypt
 
-        ts_url = os.path.join(host_uri, segment.uri)
+        ts_url = '/'.join([host_uri, segment.uri])
         data = read_bytes(ts_url)
         ts_content += decrypt_func(data)
 
