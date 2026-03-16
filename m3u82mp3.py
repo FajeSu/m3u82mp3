@@ -15,7 +15,6 @@ Example:
 """
 
 import argparse
-import os
 import binascii
 import m3u8
 import sys
@@ -31,13 +30,13 @@ def is_valid(url, qualifying=None):
     Args:
         url (str): String argument to be checked.
         qualifying (iterable): Optional variable, that contains iterable object with desired strings to be found
-            in parsed url string. By default it is 'scheme' and 'netloc'.
+            in parsed url string. By default, it is "scheme" and "netloc".
 
     Returns:
         Boolean value if argument `url` seems like a legit url.
     """
 
-    min_attributes = ('scheme', 'netloc')
+    min_attributes = ("scheme", "netloc")
 
     qualifying = qualifying or min_attributes
     token = urlparse(url)
@@ -105,7 +104,7 @@ def get_host_uri(m3u8_obj):
     for i in range(media_sequence):
         try:
             key_uri = m3u8_obj.keys[i].uri
-            host_uri = "/".join(key_uri.split("/")[:-1])
+            host_uri = key_uri.rsplit("/", 1)[0]
 
             return host_uri
         except AttributeError:
@@ -150,11 +149,11 @@ def get_ts_from_m3u8(input, host_uri=None):
                 key = read_bytes(key_uri)
 
             ind = i + media_sequence
-            iv = binascii.a2b_hex('%032x' % ind)
+            iv = binascii.a2b_hex("%032x" % ind)
             cipher = AES.new(key, AES.MODE_CBC, iv=iv)
             decrypt_func = cipher.decrypt
 
-        ts_url = os.path.join(host_uri, segment.uri)
+        ts_url = f"{host_uri}/{segment.uri}"
         data = read_bytes(ts_url)
         ts_content += decrypt_func(data)
 
@@ -185,7 +184,7 @@ def parse_command_line_args():
         output_filepath (str): File path to outpur mp3 file.
     """
 
-    ap = argparse.ArgumentParser(description='Command line converter from input_file.m3u8 to output_file.mp3',
+    ap = argparse.ArgumentParser(description="Command line converter from input_file.m3u8 to output_file.mp3",
                                  epilog="That's all folks")
     ap.add_argument("-i", "--input", required=False,
                     help="path to input m3u8 file to be converted")
@@ -205,12 +204,12 @@ def run_from_cmd():
     input_filepath, output_filepath = parse_command_line_args()
 
     if input_filepath:
-        input = open(input_filepath, 'r')
+        input = open(input_filepath, "r")
     else:
         input = sys.stdin
 
     if output_filepath:
-        output = open(output_filepath, 'wb')
+        output = open(output_filepath, "wb")
     else:
         output = sys.stdout.buffer
 
